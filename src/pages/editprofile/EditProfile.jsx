@@ -16,12 +16,13 @@ import axios from "axios";
 const EditProfile = () => {
   const { user } = useContext(AuthContext);
   const [files, setFiles] = useState("");
-  const [info, setInfo] = useState({ username:user.username,email:user.email,phone:user.phone,city:user.city,country:user.country, preferences:{
+  const [info, setInfo] = useState({ username:user.username,email:user.email,phone:user.phone,city:user.city,country:user.country, destination:user.preferences ? user.preferences.destination:"Agra",travelStyle:user.preferences?user.preferences.travelStyle:"Explorer",price:user.preferences? user.preferences.price : "50000",duration:user.preferences?user.preferences.duration:"15",preferences:{
     destination:user.preferences.destination,
     travelStyle:user.preferences.travelStyle,
     price:user.preferences.price,
     duration:user.preferences.duration
   },img:""});
+  console.log(info)
   const navigate = useNavigate()
   const user_id = user._id
   const { loading, error, dispatch } = useContext(AuthContext);
@@ -30,6 +31,7 @@ const EditProfile = () => {
 
   const handleChange = (e) => {
     setInfo((prev) => ({ ...prev, [e.target.id]: e.target.value }));
+    console.log(info.price)
     console.log(info)
   };
 
@@ -54,24 +56,27 @@ const EditProfile = () => {
         })
       );
 
-      console.log(info)
+      console.log(info.destination)
 
       const test = {
         username:info.username,email:info.email,phone:info.phone,city:info.city,country:info.country, preferences:{
           destination:info.destination,
           travelStyle:info.travelStyle,
-          price:info.price,
+          price: info.price,
           duration:info.duration
         },
         img: list[0],
       };
 
+      console.log(test)
+
+
       
 
-      await axios.put(`http://localhost:8800/api/users/${user_id}`, test);
-
+      await axios.put(`${process.env.REACT_APP_LINK}/users/${user_id}`, test);
+      const data_new = {...test,_id:user_id}
       const user_new = await axios.get(`${process.env.REACT_APP_LINK}/users/${user_id}`);
-      dispatch({ type: "LOGIN_SUCCESS", payload: user_new.data });
+      dispatch({ type: "LOGIN_SUCCESS", payload: data_new });
       navigate('/')
     } catch (err) {console.log(err)}
   };
@@ -180,7 +185,7 @@ const EditProfile = () => {
                   <select
                     id="destination"
                     onChange={handleChange}
-                    defaultValue={user.preferences ? user.preferences.destination : ""}
+                    defaultValue={user.preferences.destination}
                     autoFocus={true}>
                     <option value="Agra">Agra</option>
                     <option value="New Delhi">New Delhi</option>
@@ -205,7 +210,7 @@ const EditProfile = () => {
                   <select
                     id="travelStyle"
                     onChange={handleChange}
-                defaultValue={user.preferences.travelStyle || ""}
+                defaultValue={user.preferences.travelStyle}
                     autoFocus={true}
                     type="text"
                   >
